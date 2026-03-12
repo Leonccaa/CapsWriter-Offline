@@ -52,7 +52,7 @@ class RemoteHTTPArgs:
     multipart_field = 'audio'
     multipart_filename = 'audio.wav'
     vad_filter = True
-    language = ''
+    language = 'zh'
     send_context_as_initial_prompt = True
     mic_vad_filter = False
     file_vad_filter = True
@@ -60,9 +60,9 @@ class RemoteHTTPArgs:
     file_word_timestamps = True
     mic_condition_on_previous_text = False
     file_condition_on_previous_text = False
-    mic_beam_size = 1
+    mic_beam_size = 3
     file_beam_size = 5
-    mic_best_of = 1
+    mic_best_of = 3
     file_best_of = 5
 
 

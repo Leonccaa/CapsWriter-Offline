@@ -5,13 +5,13 @@
 # ==================== 基本信息 ====================
 name = ''                           # 角色名称（留空表示默认）
 match = True                        # 是否启用前缀匹配
-process = False                      # 是否启用 LLM 处理
+process = True                       # 是否启用 LLM 处理
 
 # ==================== API 配置 ====================
-provider = 'ollama'                     # API 提供商：'ollama', 'openai', 'deepseek', 'moonshot', 'zhipu', 'claude', 'gemini'
-api_url = ''                            # 留空则自动使用 provider 对应的默认值
-api_key = ''                            # API Key
-model = 'gemma3:4b'                     # 模型名称
+provider = 'openai'                     # API 提供商：'ollama', 'openai', 'deepseek', 'moonshot', 'zhipu', 'claude', 'gemini'
+api_url = 'http://192.168.0.252:8080/v1'  # 局域网 OpenAI 兼容接口
+api_key = 'local'                       # 本地 OpenAI 兼容服务占位 Key
+model = 'qwen'                          # 模型名称
 
 # ==================== 上下文管理 ====================
 max_context_length = 4096               # 最大上下文长度（token 数）
@@ -20,7 +20,7 @@ max_context_length = 4096               # 最大上下文长度（token 数）
 enable_hotwords = True                  # 是否启用热词
 enable_rectify = True                   # 是否读取潜在纠错记录
 enable_thinking = False                 # 是否启用思考（仅 Ollama）
-enable_history = True                   # 是否保留对话历史
+enable_history = False                  # 是否保留对话历史
 enable_read_selection = False           # 是否启用获取选中文字（通过 Ctrl+C）
 selection_max_length = 1024             # 选中文字最大长度
 
@@ -38,9 +38,9 @@ toast_duration = 3000                   # 显示时长（毫秒）
 toast_editable = False                  # 是否可编辑（Markdown 渲染后）
 
 # ==================== 生成参数 ====================
-temperature = 0.7                       # 温度（0-2，越高越随机）
+temperature = 0.2                       # 温度（0-2，越低越稳定）
 top_p = 0.9                             # Top-p 采样（0-1）
-max_tokens = 4096                       # 最大输出 token 数
+max_tokens = 512                        # 最大输出 token 数
 stop = ''                               # 停止序列
 
 # ==================== 高级选项 ====================
