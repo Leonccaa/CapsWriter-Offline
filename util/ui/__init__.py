@@ -1,10 +1,7 @@
-"""UI 工具模块
+"""UI 工具模块。"""
 
-提供 Toast 浮动消息通知和系统托盘功能。
-该模块设计为 Client 和 Server 共用，日志记录器通过注入方式加载。
-"""
+import importlib
 import logging
-from typing import Any
 
 # ============================================================
 # Logger 代理机制
@@ -33,20 +30,28 @@ def set_ui_logger(real_logger):
     """设置 UI 模块使用的日志记录器"""
     logger.set_target(real_logger)
 
-# ============================================================
-# 导出组件
-# ============================================================
+_LAZY_EXPORTS = {
+    'toast': ('.toast', 'toast'),
+    'toast_stream': ('.toast', 'toast_stream'),
+    'ToastMessage': ('.toast', 'ToastMessage'),
+    'ToastMessageManager': ('.toast', 'ToastMessageManager'),
+    'enable_min_to_tray': ('.tray', 'enable_min_to_tray'),
+    'stop_tray': ('.tray', 'stop_tray'),
+}
 
-from .toast import toast, toast_stream, ToastMessage, ToastMessageManager
-from .tray import enable_min_to_tray, stop_tray
+
+def __getattr__(name):
+    """按需加载 UI 组件，避免服务端被 GUI 依赖拖起。"""
+    if name in _LAZY_EXPORTS:
+        module_name, attr_name = _LAZY_EXPORTS[name]
+        module = importlib.import_module(module_name, __name__)
+        value = getattr(module, attr_name)
+        globals()[name] = value
+        return value
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 __all__ = [
     'logger',
     'set_ui_logger',
-    'toast',
-    'toast_stream',
-    'ToastMessage',
-    'ToastMessageManager',
-    'enable_min_to_tray',
-    'stop_tray',
+    *_LAZY_EXPORTS.keys(),
 ]

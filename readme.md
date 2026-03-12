@@ -104,6 +104,25 @@ LLM 角色既可以使用 Ollama 运行的本地模型，又可以用 API 访问
 -   修改 `llm_enabled` 来开启或关闭 AI 助手功能。
 
 
+## 🔌 STT Gateway Provider
+
+服务端现在可以作为统一的 **STT Gateway** 使用，客户端仍然只连 `addr:port`：
+
+-   `ServerConfig.provider_type = 'local_builtin'`：继续使用当前仓库自带的本地模型链路。
+-   `ServerConfig.provider_type = 'remote_http'`：将音频片段转发给远端 HTTP STT 服务。
+
+附加说明：
+
+-   旧入口 `start_server.py` 保留不变。
+-   新增 `start_gateway.py`，用于更明确地表达“只启动 STT Gateway”。
+-   `requirements-server.txt` 仍适合本地模型模式。
+-   `requirements-gateway.txt` 只安装最小 gateway 依赖，适合远端 provider 模式。
+
+远端 HTTP provider 的请求/响应格式见：
+
+-   [`docs/remote-stt-http.md`](docs/remote-stt-http.md)
+
+
 ## 🛠️ 常见问题
 
 **Q: 为什么按了没反应？**  

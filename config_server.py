@@ -13,13 +13,19 @@ class ServerConfig:
     addr = '0.0.0.0'
     port = '6016'
 
-    # 语音模型选择：'fun_asr_nano', 'sensevoice', 'paraformer', 'qwen_asr'
+    # STT Provider 选择：
+    # - 'local_builtin'：使用当前仓库内置的本地模型链路
+    # - 'remote_http'：将音频片段转发给远端 HTTP STT 服务
+    provider_type = 'remote_http'
+
+    # 语音模型选择（仅 provider_type='local_builtin' 时生效）：
+    # 'fun_asr_nano', 'sensevoice', 'paraformer', 'qwen_asr'
     model_type = 'qwen_asr'
 
     format_num = True       # 输出时是否将中文数字转为阿拉伯数字
     format_spell = True     # 输出时是否调整中英之间的空格
 
-    enable_tray = True        # 是否启用托盘图标功能
+    enable_tray = False       # gateway 远端模式下默认关闭托盘
 
     # 日志配置
     log_level = 'INFO'        # 日志级别：'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'
@@ -32,6 +38,32 @@ class ModelDownloadLinks:
     """模型下载链接配置"""
     # 统一导向 GitHub Release 模型页面
     models_page = "https://github.com/HaujetZhao/CapsWriter-Offline/releases/tag/models"
+
+
+class RemoteHTTPArgs:
+    """远端 HTTP STT Provider 配置"""
+
+    endpoint = 'http://192.168.0.20:9001/transcribe'
+    timeout = 60.0
+    authorization_token = ''
+    verify_ssl = True
+    headers = {}
+    request_format = 'multipart_wav'     # 'capswriter_json' 或 'multipart_wav'
+    multipart_field = 'audio'
+    multipart_filename = 'audio.wav'
+    vad_filter = True
+    language = ''
+    send_context_as_initial_prompt = True
+    mic_vad_filter = False
+    file_vad_filter = True
+    mic_word_timestamps = False
+    file_word_timestamps = True
+    mic_condition_on_previous_text = False
+    file_condition_on_previous_text = False
+    mic_beam_size = 1
+    file_beam_size = 5
+    mic_best_of = 1
+    file_best_of = 5
 
 
 class ModelPaths:
@@ -139,4 +171,3 @@ class Qwen3ASRGGUFArgs:
     chunk_size = 80.0           # 分段长度（秒）
     pad_to = 30                 # 开启 DirectML 加速时，短音频统一填充到指定长度，有加速效果
     verbose = False
-

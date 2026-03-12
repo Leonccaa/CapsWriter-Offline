@@ -1,0 +1,92 @@
+name: Build Windows Client
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/build-client-windows.yml'
+      - 'build-client.spec'
+      - 'build_hook.py'
+      - 'start_client.py'
+      - 'core_client.py'
+      - 'config_client.py'
+      - 'requirements-client.txt'
+      - 'assets/**'
+      - 'util/**'
+      - 'LLM/**'
+      - 'hot.txt'
+      - 'hot-rule.txt'
+      - 'hot-rectify.txt'
+      - 'hot-server.txt'
+
+jobs:
+  build-client:
+    runs-on: windows-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+          cache-dependency-path: requirements-client.txt
+
+      - name: Install Dependencies
+        shell: powershell
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install -r requirements-client.txt
+
+      - name: Build Client
+        shell: powershell
+        run: |
+          if (Test-Path build) { Remove-Item build -Recurse -Force }
+          if (Test-Path dist) { Remove-Item dist -Recurse -Force }
+          pyinstaller build-client.spec
+
+      - name: Smoke Test Executable
+        shell: powershell
+        run: |
+          $exe = Join-Path $PWD 'dist/CapsWriter-Offline-Client/start_client.exe'
+          if (!(Test-Path $exe)) { throw "Missing executable: $exe" }
+          & $exe --help | Out-Host
+
+      - name: Materialize Package
+        shell: powershell
+        run: |
+          $src = Join-Path $PWD 'dist/CapsWriter-Offline-Client'
+          $dst = Join-Path $PWD 'package/CapsWriter-Offline-Client'
+          if (Test-Path $dst) { Remove-Item $dst -Recurse -Force }
+          New-Item -ItemType Directory -Path $dst | Out-Null
+
+          Copy-Item -Path (Join-Path $src '*') -Destination $dst -Recurse -Force
+
+          foreach ($folder in @('assets', 'util', 'LLM', 'log')) {
+            $target = Join-Path $dst $folder
+            if (Test-Path $target) {
+              Remove-Item $target -Recurse -Force
+            }
+            if (Test-Path (Join-Path $PWD $folder)) {
+              Copy-Item -Path (Join-Path $PWD $folder) -Destination $target -Recurse -Force
+            }
+          }
+
+          $zip = Join-Path $PWD 'package/CapsWriter-Offline-Client-windows-x64.zip'
+          if (Test-Path $zip) { Remove-Item $zip -Force }
+          Compress-Archive -Path (Join-Path $dst '*') -DestinationPath $zip -CompressionLevel Optimal
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CapsWriter-Offline-Client-windows-x64
+          path: |
+            package/CapsWriter-Offline-Client-windows-x64.zip
+            package/CapsWriter-Offline-Client/**
+          if-no-files-found: error
+          retention-days: 14

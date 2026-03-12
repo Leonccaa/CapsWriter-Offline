@@ -79,8 +79,9 @@ def setup_tray():
 def print_banner():
     """打印启动信息"""
     console.line(2)
-    console.rule('[bold #d55252]CapsWriter Offline Server'); console.line()
+    console.rule('[bold #d55252]CapsWriter STT Gateway'); console.line()
     console.print(f'版本：[bold green]{__version__}', end='\n\n')
     console.print(f'项目地址：[cyan underline]https://github.com/HaujetZhao/CapsWriter-Offline', end='\n\n')
     console.print(f'当前基文件夹：[cyan underline]{BASE_DIR}', end='\n\n')
     console.print(f'绑定的服务地址：[cyan underline]{Config.addr}:{Config.port}', end='\n\n')
+    console.print(f'STT Provider：[cyan underline]{Config.provider_type}', end='\n\n')

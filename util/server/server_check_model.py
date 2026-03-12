@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 from config_server import ServerConfig as Config
-from config_server import ModelPaths, ModelDownloadLinks
+from config_server import ModelPaths, ModelDownloadLinks, RemoteHTTPArgs
 from util.server.server_cosmic import console
 from util.common.lifecycle import lifecycle
 from . import logger
@@ -25,6 +25,36 @@ def check_model() -> None:
     Raises:
         SystemExit: 当模型类型不支持或模型文件缺失时退出
     """
+    provider_type = Config.provider_type.lower()
+    logger.debug(f"检查 STT provider, 类型: {provider_type}")
+
+    if provider_type == 'remote_http':
+        if not RemoteHTTPArgs.endpoint.strip():
+            console.print(
+                "\n[bold red]远端 STT Provider 未配置 endpoint[/bold red]\n\n"
+                "请在 config_server.py 的 RemoteHTTPArgs.endpoint 中填写远端服务地址。\n",
+                style='bright_red',
+            )
+            input('按回车退出')
+            lifecycle.cleanup()
+            sys.exit(1)
+
+        logger.info(f"远端 STT Provider 配置检查通过 ({RemoteHTTPArgs.endpoint})")
+        console.print('[green4]远端 STT Provider 配置检查通过', end='\n\n')
+        return
+
+    if provider_type != 'local_builtin':
+        console.print(
+            f"\n[bold red]不支持的 provider_type：{Config.provider_type}[/bold red]\n\n"
+            "请在 config_server.py 中将 ServerConfig.provider_type 设置为：\n"
+            "- 'local_builtin'\n"
+            "- 'remote_http'\n",
+            style='bright_red',
+        )
+        input('按回车退出')
+        lifecycle.cleanup()
+        sys.exit(1)
+
     model_type = Config.model_type.lower()
     logger.debug(f"检查模型文件, 类型: {model_type}")
 
