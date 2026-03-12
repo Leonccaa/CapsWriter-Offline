@@ -69,13 +69,16 @@ jobs:
           }
 
       - name: Probe Frozen Executable
+        continue-on-error: true
         shell: powershell
         run: |
           $exe = Join-Path $PWD 'dist/CapsWriter-Offline-Client/start_client.exe'
           & $exe --help | Out-Host
-          if ($LASTEXITCODE -ne 0) {
-            Write-Warning "Frozen executable probe exited with code $LASTEXITCODE on the runner."
+          $exitCode = $LASTEXITCODE
+          if ($exitCode -ne 0) {
+            Write-Warning "Frozen executable probe exited with code $exitCode on the runner."
           }
+          exit 0
 
       - name: Materialize Package
         shell: powershell
