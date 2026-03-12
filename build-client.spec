@@ -56,6 +56,15 @@ try:
 except:
     pass
 
+# 收集 sounddevice 相关文件（PortAudio 等运行时依赖）
+try:
+    sounddevice_all = collect_all('sounddevice')
+    datas += sounddevice_all[0]
+    binaries += sounddevice_all[1]
+    hiddenimports += sounddevice_all[2]
+except:
+    pass
+
 # 隐藏导入 - 确保所有需要的模块都被包含
 hiddenimports += [
     'websockets',

@@ -50,12 +50,23 @@ jobs:
           if (Test-Path dist) { Remove-Item dist -Recurse -Force }
           pyinstaller build-client.spec
 
-      - name: Smoke Test Client CLI
+      - name: Validate Build Output
         shell: powershell
         run: |
           $exe = Join-Path $PWD 'dist/CapsWriter-Offline-Client/start_client.exe'
           if (!(Test-Path $exe)) { throw "Missing executable: $exe" }
-          python start_client.py --help | Out-Host
+          $required = @(
+            'config_client.py',
+            'core_client.py',
+            'hot.txt',
+            'hot-rule.txt',
+            'hot-rectify.txt',
+            'readme.md'
+          )
+          foreach ($file in $required) {
+            $path = Join-Path $PWD "dist/CapsWriter-Offline-Client/$file"
+            if (!(Test-Path $path)) { throw "Missing packaged file: $path" }
+          }
 
       - name: Probe Frozen Executable
         shell: powershell
