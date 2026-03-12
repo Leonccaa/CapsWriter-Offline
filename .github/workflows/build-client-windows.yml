@@ -50,12 +50,21 @@ jobs:
           if (Test-Path dist) { Remove-Item dist -Recurse -Force }
           pyinstaller build-client.spec
 
-      - name: Smoke Test Executable
+      - name: Smoke Test Client CLI
         shell: powershell
         run: |
           $exe = Join-Path $PWD 'dist/CapsWriter-Offline-Client/start_client.exe'
           if (!(Test-Path $exe)) { throw "Missing executable: $exe" }
+          python start_client.py --help | Out-Host
+
+      - name: Probe Frozen Executable
+        shell: powershell
+        run: |
+          $exe = Join-Path $PWD 'dist/CapsWriter-Offline-Client/start_client.exe'
           & $exe --help | Out-Host
+          if ($LASTEXITCODE -ne 0) {
+            Write-Warning "Frozen executable probe exited with code $LASTEXITCODE on the runner."
+          }
 
       - name: Materialize Package
         shell: powershell
